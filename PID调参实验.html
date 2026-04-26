@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>PID 调参实验</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #f5f5f5;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .left {width: 300px;}
+        .right {flex: 1;}
+        h1 {text-align: center; color: #333;}
+        .param {margin: 15px 0;}
+        label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="range"] {width: 200px; margin: 8px 0;}
+        .value {color: #007bff; font-weight: bold;}
+        .pool-box {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            border: 3px solid #666;
+            border-bottom: none;
+            margin: 20px 0;
+            background: #fff;
+            overflow: hidden;
+        }
+        .water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: #4dabf7;
+        }
+        .target-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ff6b6b;
+            z-index: 10;
+        }
+        .info {line-height: 1.6; font-size: 14px;}
+        canvas {
+            width: 100%;
+            height: 250px;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+        .btn {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover {background: #0056b3;}
+    </style>
+</head>
+<body>
+    <h1>PID 调参实验</h1>
+    <p style="text-align:center;color:#666">纯P有静差 | P过大必超调震荡 | I消静差 | D防抖</p>
+
+    <div class="container">
+        <div class="panel left">
+            <h3>PID 参数</h3>
+            <div class="param">
+                <label>目标水位 (m)</label>
+                <input type="range" id="setPoint" min="0.2" max="0.8" step="0.01" value="0.6">
+                <span class="value" id="setPointVal">0.60</span>
+            </div>
+            <div class="param">
+                <label>Kp 比例</label>
+                <input type="range" id="kp" min="0" max="35" step="0.2" value="6">
+                <span class="value" id="kpVal">6.0</span>
+            </div>
+            <div class="param">
+                <label>Ki 积分</label>
+                <input type="range" id="ki" min="0" max="1.2" step="0.02" value="0">
+                <span class="value" id="kiVal">0.00</span>
+            </div>
+            <div class="param">
+                <label>Kd 微分</label>
+                <input type="range" id="kd" min="0" max="0.8" step="0.01" value="0">
+                <span class="value" id="kdVal">0.00</span>
+            </div>
+            <button class="btn" onclick="resetSystem()">重置</button>
+            <div class="info" style="margin-top:20px">
+                <p>纯P：稳定偏低，有静差</p>
+                <p>P开大：立刻超调+上下震荡</p>
+                <p>加I：慢慢拉回目标，消除静差</p>
+                <p>加D：压住震荡，变平稳</p>
+            </div>
+        </div>
+
+        <div class="panel right">
+            <h3>水池状态</h3>
+            <div class="pool-box">
+                <div class="water" id="water"></div>
+                <div class="target-line" id="targetLine"></div>
+            </div>
+            <div class="info">
+                当前水位：<span class="value" id="currentLv">0.00</span>m
+                &nbsp;&nbsp;阀门：<span class="value" id="valve">0</span>%
+                &nbsp;&nbsp;误差：<span class="value" id="error">0.00</span>m
+                <br>
+                理论稳态误差：<span class="value" id="theoryError">0.00</span>m
+                &nbsp;&nbsp;漏水速度：<span class="value" id="leakDisplay">0.0022</span>
+            </div>
+            <h3>实时曲线</h3>
+            <canvas id="chart"></canvas>
+        </div>
+    </div>
+
+<script>
+let setPoint = 0.6;
+let kp = 6.0;
+let ki = 0.0;
+let kd = 0.0;
+
+let currentLevel = 0.0;
+let levelSpeed = 0.0;
+let integral = 0;
+let lastError = 0;
+let valveOpen = 0;
+
+const leakRate = 0.0022;
+const flowCoeff = 0.00095;
+const inertia = 0.92;
+let history = [];
+const maxHistory = 300;
+
+let isPaused = false;
+let viewOffset = 0;
+let isDragging = false;
+let lastX = 0;
+
+const waterEl = document.getElementById("water");
+const targetLineEl = document.getElementById("targetLine");
+const canvas = document.getElementById("chart");
+const ctx = canvas.getContext("2d");
+
+document.getElementById("setPoint").oninput = function(){
+    setPoint = +this.value;
+    document.getElementById("setPointVal").textContent = setPoint.toFixed(2);
+    updateTargetLine();
+    history = []; viewOffset = 0; integral = 0; lastError = 0;
+};
+document.getElementById("kp").oninput = function(){
+    kp = +this.value;
+    document.getElementById("kpVal").textContent = kp.toFixed(1);
+    history = []; viewOffset = 0; integral = 0; lastError = 0;
+};
+document.getElementById("ki").oninput = function(){
+    ki = +this.value;
+    document.getElementById("kiVal").textContent = ki.toFixed(2);
+    history = []; viewOffset = 0; integral = 0; lastError = 0;
+};
+document.getElementById("kd").oninput = function(){
+    kd = +this.value;
+    document.getElementById("kdVal").textContent = kd.toFixed(2);
+    history = []; viewOffset = 0; integral = 0; lastError = 0;
+};
+
+canvas.addEventListener("click", () => {
+    if (!isDragging) isPaused = !isPaused;
+});
+
+canvas.addEventListener("mousedown", (e) => {
+    if (isPaused) {
+        isDragging = true;
+        lastX = e.clientX;
+        e.preventDefault();
+    }
+});
+
+canvas.addEventListener("mousemove", (e) => {
+    if (!isDragging || !isPaused) return;
+    let dx = e.clientX - lastX;
+    viewOffset -= dx;
+    viewOffset = Math.max(0, Math.min(viewOffset, (history.length - maxHistory) || 0));
+    lastX = e.clientX;
+});
+
+canvas.addEventListener("mouseup", () => { isDragging = false; });
+canvas.addEventListener("mouseleave", () => { isDragging = false; });
+
+function resetSystem(){
+    currentLevel = 0;
+    levelSpeed = 0;
+    integral = 0;
+    lastError = 0;
+    history = [];
+    viewOffset = 0;
+    isPaused = false;
+}
+
+function updateTargetLine(){
+    let bottomPercent = setPoint * 100;
+    targetLineEl.style.bottom = bottomPercent + "%";
+}
+
+function pidControl(){
+    if (!isPaused) {
+        let error = setPoint - currentLevel;
+        integral += error;
+      //  integral = Math.max(-80, Math.min(80, integral));
+        let deriv = error - lastError;
+        lastError = error;
+
+        let out = kp * error + ki * integral + kd * deriv;
+        valveOpen = Math.max(0, Math.min(100, out));
+
+        let flow = valveOpen * flowCoeff;
+        levelSpeed = inertia * levelSpeed + (flow - leakRate);
+        currentLevel += levelSpeed;
+        currentLevel = Math.max(0, currentLevel);
+
+        updateUI(error);
+    }
+    drawChart();
+}
+
+function updateUI(err){
+    waterEl.style.height = (currentLevel * 100) + "%";
+    document.getElementById("currentLv").textContent = currentLevel.toFixed(2);
+    document.getElementById("valve").textContent = Math.round(valveOpen);
+    document.getElementById("error").textContent = err.toFixed(2);
+    document.getElementById("leakDisplay").textContent = leakRate.toFixed(4);
+
+    let theoreticalError = (leakRate / flowCoeff) / kp;
+    if (kp <= 0 || ki > 0) {
+        document.getElementById("theoryError").textContent = "N/A";
+    } else {
+        document.getElementById("theoryError").textContent = theoreticalError.toFixed(3);
+    }
+
+    history.push(currentLevel);
+    if (history.length > maxHistory * 2) history.shift();
+}
+
+function drawChart(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let ty = canvas.height - setPoint * canvas.height;
+    ctx.strokeStyle = "#ff6b6b";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, ty);
+    ctx.lineTo(canvas.width, ty);
+    ctx.stroke();
+
+    let start;
+    if (isPaused) {
+        start = viewOffset;
+    } else {
+        start = Math.max(0, history.length - maxHistory);
+        viewOffset = start;
+    }
+
+    ctx.strokeStyle = "#4dabf7";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < maxHistory; i++) {
+        let idx = Math.floor(start) + i;
+        let val = history[idx];
+        if (val == null) continue;
+        let x = i / maxHistory * canvas.width;
+        let y = canvas.height - val * canvas.height;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+}
+
+function loop(){
+    pidControl();
+    requestAnimationFrame(loop);
+}
+
+updateTargetLine();
+loop();
+</script>
+</body>
+</html>
