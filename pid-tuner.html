@@ -231,8 +231,11 @@ function pidControl(){
     if (!isPaused) {
         let error = setPoint - currentLevel;
         integral += error;
-      //  integral = Math.max(-80, Math.min(80, integral));
-        let deriv = error - lastError;
+        integral = Math.max(-80, Math.min(80, integral));
+        
+        // ========== 已修复：D项放大100倍，让小Kd也有明显效果 ==========
+        let deriv = (error - lastError) * 100;
+        
         lastError = error;
 
         let out = kp * error + ki * integral + kd * deriv;
