@@ -8,7 +8,9 @@
     * { box-sizing: border-box; font-family: Arial, sans-serif; }
     body { background: #f5f7fb; max-width: 1120px; margin: 0 auto; padding: 20px; color: #1f2937; }
     h1 { text-align: center; margin: 0 0 8px; }
-    .subtitle { text-align: center; color: #6b7280; margin-bottom: 16px; }
+    .subtitle { text-align: center; color: #6b7280; margin-bottom: 16px; min-height: 1.5em; transition: opacity .25s ease; cursor: pointer; user-select: none; }
+    .subtitle:hover { color: #2563eb; }
+    .subtitle.is-changing { opacity: 0; }
     .container { display: flex; gap: 18px; align-items: flex-start; }
     .panel { background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 2px 10px rgba(15,23,42,.08); }
     .left { width: 330px; }
@@ -52,7 +54,7 @@
 </head>
 <body>
   <h1>PID 调节实验</h1>
-  <div class="subtitle">先调 P 到轻微等幅振荡，再加 I 消除静差，最后加 D 抑制超调</div>
+  <div class="subtitle" id="loadingTip" title="点击切换下一条提示" aria-live="polite">调参小贴士：先调 P 到轻微等幅振荡，再加 I 消除静差，最后加 D 抑制超调</div>
 
   <div class="container">
     <div class="panel left">
@@ -147,6 +149,36 @@
   </div>
 
   <script>
+    const tips = [
+      "先调 P 到轻微等幅振荡，再加 I 消除静差，最后加 D 抑制超调。",
+      "Kp 越大，控制动作越强；太大时可能引起持续振荡。",
+      "纯 P 控制通常会留下静差；增加 Ki 可逐步消除静差。",
+      "Ki 不宜一次加太多：积分过强可能造成明显超调和较长恢复时间。",
+      "Kd 根据误差变化趋势提前制动，常用于减小超调；单独使用不能消除静差。",
+      "调参时一次只改一个参数，并观察响应曲线的超调量与稳定时间。",
+      "出现等幅振荡说明 Kp 偏大，可适当回调，避免系统长期不稳定。",
+      "积分项会累积历史误差，若阀门已达上限（积分饱和），退出饱和需要额外时间。",
+      "Kd 对测量噪声敏感：液位信号抖动大时，过强的 D 会让阀门频繁抖动。",
+      "先用「一键整定」观察自动结果，再手动微调，理解每个参数的独立作用。",
+      "观察「理论静差」读数：纯 P 时它大于 0，加入 I 后应逐渐趋近于 0。",
+      "调节目标液位后，记录新稳态的到达时间，对比不同参数下的响应速度。",
+      "PI 组合能消除静差，PID 再加 D 通常能同时压低超调、缩短稳定时间。",
+      "如果曲线持续发散（振幅越来越大），说明 Kp 过大，应立即减小。",
+      "拖动曲线区下方的回放条，可回看任意时刻的液位、阀门与误差历史。"
+    ];
+    let tipIndex = 0;
+    const tipElement = document.getElementById("loadingTip");
+    function showNextTip() {
+      tipElement.classList.add("is-changing");
+      window.setTimeout(() => {
+        tipIndex = (tipIndex + 1) % tips.length;
+        tipElement.textContent = `调参小贴士：${tips[tipIndex]}`;
+        tipElement.classList.remove("is-changing");
+      }, 250);
+    }
+    tipElement.addEventListener("click", showNextTip);
+    window.setInterval(showNextTip, 6000);
+
     let setPoint = 0.6;
     let kp = 15.0;
     let ki = 0.0;
