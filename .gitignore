@@ -1,0 +1,53 @@
+# ==================== 操作系统 ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ==================== 编辑器 / IDE ====================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ==================== 依赖与构建产物 ====================
+# 本项目当前为纯静态页面，无构建步骤；以下为后续引入工具链时的通用忽略规则
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# 包管理器日志
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==================== 日志与临时文件 ====================
+*.log
+tmp/
+temp/
+*.tmp
+*.bak
+
+# ==================== 本地环境配置 ====================
+.env
+.env.local
+.env.*.local
+*.local

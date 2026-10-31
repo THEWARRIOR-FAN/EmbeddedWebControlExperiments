@@ -72,10 +72,10 @@
         <label for="kp">Kp</label>
         <div class="param-control">
           <button class="btn param-btn" onclick="adjustParam('kp', -0.1)">-</button>
-          <input type="range" id="kp" min="0" max="80" step="0.1" value="8.0">
+          <input type="range" id="kp" min="0" max="80" step="0.1" value="15.0">
           <button class="btn param-btn" onclick="adjustParam('kp', 0.1)">+</button>
         </div>
-        <span class="value" id="kpVal">8.0</span>
+        <span class="value" id="kpVal">15.0</span>
       </div>
 
       <div class="param">
@@ -148,7 +148,7 @@
 
   <script>
     let setPoint = 0.6;
-    let kp = 8.0;
+    let kp = 15.0;
     let ki = 0.0;
     let kd = 0.0;
 
@@ -159,17 +159,19 @@
     let actuator = 0.0;
 
     const dt = 1 / 60;
-    const delayFrames = 16;
+    const delayFrames = 16;      // 纯滞后 16 帧 ≈ 0.27s
     const maxValve = 100;
-    const inflowGain = 0.18;
-    const baseLeak = 0.012;
-    const levelLeak = 0.006;
+    // 被控对象：阀门开度 → 进水 → 水位，过程主时间常数约 3.8s
+    const inflowGain = 0.18;     // 阀门开度对进水量的增益，与 levelLeak 共同决定过程增益
+    const baseLeak = 0;          // 恒定泄漏量，为 0 时理论静差有统一解析式
+    const levelLeak = 0.006;     // 出水量与水位成正比
     const plantAccel = 4.5;
     const plantDamping = 0.18;
-    const speedMemory = 0.985;
+    const speedMemory = 0.903;   // 水体惯性，速度环节时间常数约 0.17s
     const actuatorLag = 0.12;
     const derivativeFilter = 0.18;
-    const levelScale = 18;
+    const levelScale = 55.6;     // 与 plantAccel、levelLeak 共同决定过程时间常数
+    const integralLimit = 4.5;   // 积分抗饱和上限
     const visiblePoints = 360;
     const maxStoredPoints = 2400;
 
@@ -233,22 +235,22 @@
 
     function loadPreset(name) {
       if (name === "pOnly") {
-        kp = 26.0;
+        kp = 50.0;
         ki = 0.0;
         kd = 0.0;
-        document.getElementById("tuneStatus").textContent = "P 模式：这组 Kp 已接近持续振荡，便于观察纯比例控制";
+        document.getElementById("tuneStatus").textContent = "P 模式：Kp 已进入轻微等幅振荡区，便于观察纯比例控制的静差与持续振荡";
       }
       if (name === "pi") {
-        kp = 18.0;
-        ki = 2.2;
+        kp = 20.0;
+        ki = 2.0;
         kd = 0.0;
-        document.getElementById("tuneStatus").textContent = "PI 模式：静差会逐步减小，但通常会带来更明显的超调";
+        document.getElementById("tuneStatus").textContent = "PI 模式：积分把静差消到 0，但超调比纯 P 更明显";
       }
       if (name === "pid") {
-        kp = 19.0;
-        ki = 3.4;
+        kp = 20.0;
+        ki = 2.0;
         kd = 4.0;
-        document.getElementById("tuneStatus").textContent = "PID 模式：快速逼近目标，同时把超调压得更低";
+        document.getElementById("tuneStatus").textContent = "PID 模式：与 PI 同样的 Kp、Ki，微分把超调压低并更快稳定";
       }
 
       syncUI();
@@ -256,12 +258,8 @@
     }
 
     function autoTune() {
-      kp = 19.0;
-      ki = 3.4;
-      kd = 4.0;
-      syncUI();
-      resetSystem(false);
-      document.getElementById("tuneStatus").textContent = "已切换到一组更快且更稳的 PID 参数";
+      loadPreset("pid");
+      document.getElementById("tuneStatus").textContent = "已整定为一组稳定参数：kp=20.0、ki=2.0、kd=4.0";
     }
 
     function resetSystem(clearStatus = true) {
@@ -365,7 +363,10 @@
       document.getElementById("valve").textContent = Math.round(actuator);
       document.getElementById("error").textContent = error.toFixed(2);
       document.getElementById("delayDisplay").textContent = delayFrames;
-      document.getElementById("theoryError").textContent = ki > 0 ? "0.000" : (baseLeak / Math.max(kp * inflowGain, 1e-6)).toFixed(3);
+      // 理论稳态误差：积分未饱和时由积分作用消除；饱和时按阀位平衡解出残余静差
+      const valveRange = 100 * levelLeak / inflowGain;
+      const theoryError = Math.max(0, (valveRange * setPoint - integralLimit * ki) / (kp + valveRange));
+      document.getElementById("theoryError").textContent = theoryError.toFixed(3);
     }
 
     function pidControl() {
@@ -374,7 +375,7 @@
       filteredDerivative += derivativeFilter * (measurementDerivative - filteredDerivative);
 
       integral += error * dt;
-      integral = Math.max(-4.5, Math.min(4.5, integral));
+      integral = Math.max(-integralLimit, Math.min(integralLimit, integral));
 
       const command = kp * error + ki * integral - kd * filteredDerivative;
       valveOpen = Math.max(0, Math.min(maxValve, command));
