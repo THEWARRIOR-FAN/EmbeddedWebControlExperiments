@@ -30,9 +30,34 @@
     .param-btn { width: 34px; height: 34px; padding: 0; margin-top: 0; flex: 0 0 34px; }
     .preset-btn { width: 100%; }
     .info, .status, .tips { line-height: 1.7; font-size: 14px; }
-    .pool-box { position: relative; width: 100%; height: 300px; border: 3px solid #6b7280; border-bottom: none; margin: 14px 0 16px; background: #fff; overflow: hidden; }
-    .water { position: absolute; bottom: 0; width: 100%; background: linear-gradient(#60a5fa, #2563eb); }
+    .pool-box { position: relative; width: 100%; height: 300px; border: 3px solid #6b7280; border-bottom: none; margin: 14px 0 76px; background: #fff; overflow: visible; }
+    .water { position: absolute; bottom: 0; width: 100%; background: linear-gradient(180deg, #60a5fa, #2563eb); overflow: hidden; transition: height .08s linear; }
+    .water::before { content: ""; position: absolute; left: 0; top: 0; width: 200%; height: 10px; background: repeating-linear-gradient(110deg, rgba(255,255,255,.5) 0 18px, rgba(255,255,255,0) 18px 44px); animation: surfaceFlow 2.8s linear infinite; }
+    .water::after { content: ""; position: absolute; left: 0; top: 8px; width: 200%; height: 8px; background: repeating-linear-gradient(70deg, rgba(255,255,255,.18) 0 14px, rgba(255,255,255,0) 14px 38px); animation: surfaceFlow 4.2s linear infinite reverse; }
+    .water:not(.has-water)::before, .water:not(.has-water)::after { opacity: 0; }
     .target-line { position: absolute; left: 0; width: 100%; height: 3px; background: #ef4444; z-index: 10; }
+    /* 进水管与下落水流 */
+    .inlet-pipe { position: absolute; left: 26px; top: -18px; width: 20px; height: 34px; border-radius: 3px; background: linear-gradient(90deg, #94a3b8, #64748b); box-shadow: inset 0 2px 0 rgba(255,255,255,.45); z-index: 20; }
+    .inlet-pipe::after { content: ""; position: absolute; left: 3px; bottom: -5px; width: 14px; height: 7px; border-radius: 0 0 4px 4px; background: #475569; }
+    .inlet-stream { position: absolute; left: 28px; top: 16px; width: 16px; height: 0; border-radius: 3px 3px 5px 5px; background: linear-gradient(180deg, rgba(96,165,250,.92), rgba(37,99,235,.8)); opacity: 0; z-index: 15; }
+    .inlet-stream::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(180deg, rgba(255,255,255,.7) 0 4px, rgba(255,255,255,0) 4px 14px); animation: streamFlowDown .35s linear infinite; }
+    .inlet-stream::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 24px; height: 9px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,.85), rgba(255,255,255,0) 70%); transform: translateX(-50%); animation: splashPulse .45s ease-in-out infinite alternate; }
+    /* 出水管与外流水流 */
+    .outlet-pipe { position: absolute; right: -18px; bottom: 22px; width: 30px; height: 18px; border-radius: 0 5px 5px 0; background: linear-gradient(180deg, #94a3b8, #64748b); box-shadow: inset 0 2px 0 rgba(255,255,255,.4); z-index: 20; }
+    .outlet-pipe::after { content: ""; position: absolute; right: -3px; top: -4px; width: 6px; height: 26px; border-radius: 3px; background: #475569; }
+    .outlet-stream { position: absolute; right: -24px; top: calc(100% - 34px); width: 14px; height: 0; border-radius: 3px 3px 6px 6px; background: linear-gradient(180deg, rgba(96,165,250,.92), rgba(37,99,235,.78)); opacity: 0; z-index: 15; transform: rotate(6deg); transform-origin: top center; }
+    .outlet-stream::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(180deg, rgba(255,255,255,.65) 0 4px, rgba(255,255,255,0) 4px 13px); animation: streamFlowDown .4s linear infinite; }
+    .drain-pool { position: absolute; right: -49px; bottom: -70px; width: 44px; height: 10px; border-radius: 3px 3px 8px 8px; background: #cbd5e1; opacity: .8; z-index: 10; }
+    .drain-pool::before { content: ""; position: absolute; left: 50%; top: -3px; width: 30px; height: 7px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,.9), rgba(255,255,255,0) 70%); transform: translateX(-50%) scale(.6); opacity: 0; }
+    .drain-pool.is-receiving::before { opacity: 1; animation: splashPulse .5s ease-in-out infinite alternate; }
+    @keyframes surfaceFlow { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes streamFlowDown { from { background-position: 0 0; } to { background-position: 0 14px; } }
+    @keyframes splashPulse { from { transform: translateX(-50%) scale(.75); opacity: .5; } to { transform: translateX(-50%) scale(1.25); opacity: .95; } }
+    /* 暂停时冻结所有流动动画 */
+    .pool-box.is-paused .water::before, .pool-box.is-paused .water::after,
+    .pool-box.is-paused .inlet-stream::before, .pool-box.is-paused .inlet-stream::after,
+    .pool-box.is-paused .outlet-stream::before, .pool-box.is-paused .drain-pool.is-receiving::before { animation-play-state: paused; }
+    @media (prefers-reduced-motion: reduce) { .water::before, .water::after, .inlet-stream::before, .inlet-stream::after, .outlet-stream::before, .drain-pool.is-receiving::before { animation: none; } }
     canvas { width: 100%; height: 260px; border: 1px solid #d1d5db; background: #fafafa; display: block; }
     .status, .tips { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; border: 1px solid #e5e7eb; }
     .tips { color: #475569; }
@@ -122,6 +147,11 @@
       <div class="pool-box">
         <div class="water" id="water"></div>
         <div class="target-line" id="targetLine"></div>
+        <div class="inlet-pipe" aria-hidden="true"></div>
+        <div class="inlet-stream" id="inletStream" aria-hidden="true"></div>
+        <div class="outlet-pipe" aria-hidden="true"></div>
+        <div class="outlet-stream" id="outletStream" aria-hidden="true"></div>
+        <div class="drain-pool" aria-hidden="true"></div>
       </div>
       <div class="info">
         当前液位 <span class="value" id="currentLv">0.00</span> m
@@ -217,6 +247,10 @@
 
     const waterEl = document.getElementById("water");
     const targetLineEl = document.getElementById("targetLine");
+    const inletStreamEl = document.getElementById("inletStream");
+    const outletStreamEl = document.getElementById("outletStream");
+    const poolBoxEl = document.querySelector(".pool-box");
+    const drainPoolEl = document.querySelector(".drain-pool");
     const canvas = document.getElementById("chart");
     const ctx = canvas.getContext("2d");
     const toggleRunBtn = document.getElementById("toggleRunBtn");
@@ -261,8 +295,8 @@
       if (name === "ki") ki = value;
       if (name === "kd") kd = value;
 
+      // 微调同样不重启系统，参数即时生效
       syncUI();
-      resetSystem(false);
     }
 
     function loadPreset(name) {
@@ -285,8 +319,9 @@
         document.getElementById("tuneStatus").textContent = "PID 模式：与 PI 同样的 Kp、Ki，微分把超调压低并更快稳定";
       }
 
+      // 预设代表一个完整实验场景：应用参数并从空槽重新开始，便于复现文档中的预期现象
       syncUI();
-      resetSystem(false);
+      resetSimState();
     }
 
     function autoTune() {
@@ -294,7 +329,7 @@
       document.getElementById("tuneStatus").textContent = "已整定为一组稳定参数：kp=20.0、ki=2.0、kd=4.0";
     }
 
-    function resetSystem(clearStatus = true) {
+    function resetSimState() {
       currentLevel = 0.0;
       levelSpeed = 0.0;
       integral = 0.0;
@@ -306,40 +341,45 @@
       history = [];
       isPaused = false;
       viewStartIndex = 0;
+      poolBoxEl.classList.remove("is-paused");
       updateReadout();
       updateScrubberUI();
       drawChart();
-      if (clearStatus) {
-        document.getElementById("tuneStatus").textContent = "当前为手动调参模式";
-      }
+    }
+
+    function resetSystem() {
+      setPoint = 0.6;
+      kp = 15.0;
+      ki = 0.0;
+      kd = 0.0;
+      syncUI();
+      resetSimState();
+      document.getElementById("tuneStatus").textContent = "已重置：所有参数恢复默认值，系统从空槽重新开始";
     }
 
     function updateTargetLine() {
       targetLineEl.style.bottom = (setPoint * 100) + "%";
     }
 
+    // 调参不重启系统：参数改动即时生效，系统从当前状态继续响应，便于观察过渡过程
     document.getElementById("setPoint").oninput = function () {
       setPoint = parseFloat(this.value);
       syncUI();
-      resetSystem();
     };
 
     document.getElementById("kp").oninput = function () {
       kp = parseFloat(this.value);
       syncUI();
-      resetSystem();
     };
 
     document.getElementById("ki").oninput = function () {
       ki = parseFloat(this.value);
       syncUI();
-      resetSystem();
     };
 
     document.getElementById("kd").oninput = function () {
       kd = parseFloat(this.value);
       syncUI();
-      resetSystem();
     };
 
     toggleRunBtn.addEventListener("click", function () {
@@ -347,6 +387,7 @@
       if (!isPaused) {
         viewStartIndex = getLatestViewStart();
       }
+      poolBoxEl.classList.toggle("is-paused", isPaused);
       updateScrubberUI();
       drawChart();
     });
@@ -390,11 +431,36 @@
 
     function updateReadout() {
       const error = setPoint - currentLevel;
-      waterEl.style.height = (currentLevel * 100) + "%";
+      const waterPercent = currentLevel * 100;
+      waterEl.style.height = waterPercent + "%";
+      waterEl.classList.toggle("has-water", currentLevel > 0.002);
       document.getElementById("currentLv").textContent = currentLevel.toFixed(2);
       document.getElementById("valve").textContent = Math.round(actuator);
       document.getElementById("error").textContent = error.toFixed(2);
       document.getElementById("delayDisplay").textContent = delayFrames;
+
+      // 进/出水动画强度跟随当前阀门开度与水位
+      const poolHeight = 300;
+      const valveRatio = actuator / maxValve;
+      const inflow = inflowGain * valveRatio;
+      const outflow = baseLeak + levelLeak * currentLevel;
+      const inletRatio = Math.min(1, inflow / inflowGain);
+      const outletRatio = Math.min(1, outflow / (levelLeak + baseLeak));
+
+      // 进水流长度精确接到当前水面（起点距池顶16px）
+      const surfaceY = poolHeight * (1 - currentLevel);
+      const inletHeight = Math.max(0, surfaceY - 16);
+      inletStreamEl.style.height = inletHeight.toFixed(1) + "px";
+      inletStreamEl.style.width = (8 + inletRatio * 10).toFixed(1) + "px";
+      inletStreamEl.style.opacity = inletRatio > 0.01 ? String(0.4 + inletRatio * 0.6) : "0";
+
+      // 出水流长度接到接水槽（槽顶距池底约70px），粗细随出水量变化
+      const outletHeight = outletRatio * 94;
+      outletStreamEl.style.height = outletHeight.toFixed(1) + "px";
+      outletStreamEl.style.width = (6 + outletRatio * 8).toFixed(1) + "px";
+      outletStreamEl.style.opacity = outletRatio > 0.01 ? String(0.4 + outletRatio * 0.6) : "0";
+      drainPoolEl.classList.toggle("is-receiving", outletRatio > 0.01);
+
       // 理论稳态误差：积分未饱和时由积分作用消除；饱和时按阀位平衡解出残余静差
       const valveRange = 100 * levelLeak / inflowGain;
       const theoryError = Math.max(0, (valveRange * setPoint - integralLimit * ki) / (kp + valveRange));
