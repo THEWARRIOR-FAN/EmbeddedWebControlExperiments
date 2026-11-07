@@ -29,8 +29,8 @@
     .btn-secondary:hover { background: #4b5563; }
     .param-btn { width: 34px; height: 34px; padding: 0; margin-top: 0; flex: 0 0 34px; }
     .preset-btn { width: 100%; }
-    .info, .status, .tips { line-height: 1.7; font-size: 14px; }
-    .pool-box { position: relative; width: 100%; height: 300px; border: 3px solid #6b7280; border-bottom: none; margin: 14px 0 76px; background: #fff; overflow: visible; }
+    .status, .tips { line-height: 1.7; font-size: 14px; }
+    .pool-box { position: relative; width: 100%; height: 300px; border: 3px solid #6b7280; border-bottom: none; margin: 14px 0 54px; background: #fff; overflow: visible; }
     .water { position: absolute; bottom: 0; width: 100%; background: linear-gradient(180deg, #60a5fa, #2563eb); overflow: hidden; transition: height .08s linear; }
     .water::before { content: ""; position: absolute; left: 0; top: 0; width: 200%; height: 10px; background: repeating-linear-gradient(110deg, rgba(255,255,255,.5) 0 18px, rgba(255,255,255,0) 18px 44px); animation: surfaceFlow 2.8s linear infinite; }
     .water::after { content: ""; position: absolute; left: 0; top: 8px; width: 200%; height: 8px; background: repeating-linear-gradient(70deg, rgba(255,255,255,.18) 0 14px, rgba(255,255,255,0) 14px 38px); animation: surfaceFlow 4.2s linear infinite reverse; }
@@ -43,11 +43,11 @@
     .inlet-stream::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(180deg, rgba(255,255,255,.7) 0 4px, rgba(255,255,255,0) 4px 14px); animation: streamFlowDown .35s linear infinite; }
     .inlet-stream::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 24px; height: 9px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,.85), rgba(255,255,255,0) 70%); transform: translateX(-50%); animation: splashPulse .45s ease-in-out infinite alternate; }
     /* 出水管与外流水流 */
-    .outlet-pipe { position: absolute; right: -18px; bottom: 22px; width: 30px; height: 18px; border-radius: 0 5px 5px 0; background: linear-gradient(180deg, #94a3b8, #64748b); box-shadow: inset 0 2px 0 rgba(255,255,255,.4); z-index: 20; }
+    .outlet-pipe { position: absolute; right: -18px; bottom: -9px; width: 30px; height: 18px; border-radius: 0 5px 5px 0; background: linear-gradient(180deg, #94a3b8, #64748b); box-shadow: inset 0 2px 0 rgba(255,255,255,.4); z-index: 20; }
     .outlet-pipe::after { content: ""; position: absolute; right: -3px; top: -4px; width: 6px; height: 26px; border-radius: 3px; background: #475569; }
-    .outlet-stream { position: absolute; right: -24px; top: calc(100% - 34px); width: 14px; height: 0; border-radius: 3px 3px 6px 6px; background: linear-gradient(180deg, rgba(96,165,250,.92), rgba(37,99,235,.78)); opacity: 0; z-index: 15; transform: rotate(6deg); transform-origin: top center; }
+    .outlet-stream { position: absolute; right: -24px; top: 100%; width: 14px; height: 0; border-radius: 3px 3px 6px 6px; background: linear-gradient(180deg, rgba(96,165,250,.92), rgba(37,99,235,.78)); opacity: 0; z-index: 15; transform: rotate(6deg); transform-origin: top center; }
     .outlet-stream::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(180deg, rgba(255,255,255,.65) 0 4px, rgba(255,255,255,0) 4px 13px); animation: streamFlowDown .4s linear infinite; }
-    .drain-pool { position: absolute; right: -49px; bottom: -70px; width: 44px; height: 10px; border-radius: 3px 3px 8px 8px; background: #cbd5e1; opacity: .8; z-index: 10; }
+    .drain-pool { position: absolute; right: -49px; bottom: -50px; width: 44px; height: 10px; border-radius: 3px 3px 8px 8px; background: #cbd5e1; opacity: .8; z-index: 10; }
     .drain-pool::before { content: ""; position: absolute; left: 50%; top: -3px; width: 30px; height: 7px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,.9), rgba(255,255,255,0) 70%); transform: translateX(-50%) scale(.6); opacity: 0; }
     .drain-pool.is-receiving::before { opacity: 1; animation: splashPulse .5s ease-in-out infinite alternate; }
     @keyframes surfaceFlow { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -61,6 +61,37 @@
     canvas { width: 100%; height: 260px; border: 1px solid #d1d5db; background: #fafafa; display: block; }
     .status, .tips { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; border: 1px solid #e5e7eb; }
     .tips { color: #475569; }
+    /* 核心指标：四个关键量并排放大显示 */
+    .key-metrics { display: flex; gap: 8px; margin-top: 6px; }
+    .metric { flex: 1; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 6px; text-align: center; }
+    .metric-label { display: block; font-size: 12px; color: #6b7280; margin-bottom: 3px; }
+    .metric-num { font-size: 24px; font-weight: 700; color: #1f2937; }
+    .metric-unit { font-size: 12px; color: #6b7280; }
+    .metric.is-error .metric-num { color: #dc2626; }
+    .balance-line { margin-top: 8px; font-size: 14px; color: #374151; }
+    /* 次要数据默认折叠，点开才显示 */
+    .more-data { margin-top: 8px; font-size: 13px; color: #475569; line-height: 1.7; }
+    .more-data summary { cursor: pointer; color: #2563eb; font-weight: 600; }
+    .more-data[open] summary { margin-bottom: 4px; }
+    /* PID 公式卡：每项一行，代入真实数字，颜色与 P/I/D 对应 */
+    #controlBreakdown { border-left: 3px solid #2563eb; }
+    #controlBreakdown strong { color: #1f2937; }
+    .formula { display: grid; gap: 5px; margin-top: 6px; }
+    .formula-row { display: flex; align-items: baseline; gap: 8px; }
+    .term { flex: 0 0 20px; height: 20px; line-height: 20px; text-align: center;
+      border-radius: 5px; color: #fff; font-weight: 700; font-size: 12px; }
+    .term-p { background: #2563eb; }
+    .term-i { background: #d97706; }
+    .term-d { background: #059669; }
+    .term-sum { background: #1f2937; }
+    .expr { font-family: Consolas, "Courier New", monospace; font-size: 14px; color: #374151; }
+    .expr b { color: #c2410c; }
+    .expr .res-p { color: #2563eb; font-size: 15px; }
+    .expr .res-i { color: #d97706; font-size: 15px; }
+    .expr .res-d { color: #059669; font-size: 15px; }
+    .expr .res-sum { color: #1f2937; font-size: 15px; }
+    .formula-path { font-size: 13px; color: #475569; font-family: inherit; }
+    .formula-path b { color: #2563eb; }
     .chart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
     .chart-head h3 { margin: 0; }
     .chart-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -79,7 +110,7 @@
 </head>
 <body>
   <h1>PID 调节实验</h1>
-  <div class="subtitle" id="loadingTip" title="点击切换下一条提示" aria-live="polite">调参小贴士：先调 P 到轻微等幅振荡，再加 I 消除静差，最后加 D 抑制超调</div>
+  <div class="subtitle" id="loadingTip" title="点击切换下一条提示" aria-live="polite">调参小贴士：先观察纯 P 的静差，再增加 I；普通水池通常用 PI 就足够</div>
 
   <div class="container">
     <div class="panel left">
@@ -96,36 +127,36 @@
       </div>
 
       <div class="param">
-        <label for="kp">Kp</label>
+        <label for="kp">Kp (%/m)</label>
         <div class="param-control">
           <button class="btn param-btn" onclick="adjustParam('kp', -0.1)">-</button>
-          <input type="range" id="kp" min="0" max="80" step="0.1" value="15.0">
+          <input type="range" id="kp" min="0" max="1000" step="0.1" value="200.0">
           <button class="btn param-btn" onclick="adjustParam('kp', 0.1)">+</button>
         </div>
-        <span class="value" id="kpVal">15.0</span>
+        <span class="value" id="kpVal">200.0</span>
       </div>
 
       <div class="param">
-        <label for="ki">Ki</label>
+        <label for="ki">Ki (%/(m·s))</label>
         <div class="param-control">
-          <button class="btn param-btn" onclick="adjustParam('ki', -0.1)">-</button>
-          <input type="range" id="ki" min="0" max="20" step="0.1" value="0.0">
-          <button class="btn param-btn" onclick="adjustParam('ki', 0.1)">+</button>
+          <button class="btn param-btn" onclick="adjustParam('ki', -0.05)">-</button>
+          <input type="range" id="ki" min="0" max="5" step="0.05" value="0.00">
+          <button class="btn param-btn" onclick="adjustParam('ki', 0.05)">+</button>
         </div>
-        <span class="value" id="kiVal">0.0</span>
+        <span class="value" id="kiVal">0.00</span>
       </div>
 
       <div class="param">
-        <label for="kd">Kd</label>
+        <label for="kd">Kd (%·s/m)</label>
         <div class="param-control">
-          <button class="btn param-btn" onclick="adjustParam('kd', -0.1)">-</button>
-          <input type="range" id="kd" min="0" max="20" step="0.1" value="0.0">
-          <button class="btn param-btn" onclick="adjustParam('kd', 0.1)">+</button>
+          <button class="btn param-btn" onclick="adjustParam('kd', -100)">-</button>
+          <input type="range" id="kd" min="0" max="20000" step="100" value="0">
+          <button class="btn param-btn" onclick="adjustParam('kd', 100)">+</button>
         </div>
-        <span class="value" id="kdVal">0.0</span>
+        <span class="value" id="kdVal">0</span>
       </div>
 
-      <button class="btn btn-auto" onclick="autoTune()">一键整定</button>
+      <button class="btn btn-auto" onclick="autoTune()">推荐 PI 参数</button>
       <button class="btn btn-secondary" onclick="resetSystem()">重置实验</button>
 
       <h3 style="margin-top:18px">实验预设</h3>
@@ -135,11 +166,19 @@
 
       <div class="status" id="tuneStatus">当前为手动调参模式</div>
       <div class="tips">
-        建议实验顺序：<br>
-        1. 先设 Ki=0、Kd=0，缓慢增大 Kp，直到出现轻微等幅振荡。<br>
-        2. 再增加 Ki，观察静差减小到消失。<br>
-        3. 最后增加 Kd，压低超调并缩短稳定时间。
+        <strong>调参思路</strong><br>
+        真实整定要先了解被控对象，再从保守的 P 参数开始，逐步增加 Kp 并观察响应；随后加入 Ki 消除静差，最后才考虑 Kd。每次只改一个参数。这里的滑块范围只是本仿真的操作边界，不代表真实设备预先给定的整定答案。
       </div>
+      <details class="more-data">
+        <summary>物理模型（SI 单位，点开查看）</summary>
+        水池：1 m × 1 m × 1 m，容量 1000 L。<br>
+        顶部进水：最大 2 L/s，与实际阀位成正比。<br>
+        底部出水：直径 20 mm，流量系数 Cd=0.6，向大气自由排水。<br>
+        Q出 = Cd × 孔面积 × √(2gh)；水位变化率 = (Q进 − Q出) ÷ 池底面积。<br>
+        0.6 m 时出水约 0.647 L/s，平衡阀位约 32.4%。<br>
+        阀门指令延迟 0.30 s 后才到达执行机构，阀门按一阶惯性动作。<br>
+        不含长管阻力、泵曲线和水面晃荡。
+      </details>
     </div>
 
     <div class="panel right">
@@ -153,17 +192,68 @@
         <div class="outlet-stream" id="outletStream" aria-hidden="true"></div>
         <div class="drain-pool" aria-hidden="true"></div>
       </div>
-      <div class="info">
-        当前液位 <span class="value" id="currentLv">0.00</span> m
-        &nbsp;&nbsp;阀门开度 <span class="value" id="valve">0</span> %
-        &nbsp;&nbsp;误差 <span class="value" id="error">0.00</span> m
-        <br>
-        理论静差 <span class="value" id="theoryError">0.00</span> m
-        &nbsp;&nbsp;延时 <span class="value" id="delayDisplay">16</span> 帧
+      <div class="key-metrics">
+        <div class="metric">
+          <span class="metric-label">当前液位</span>
+          <span class="metric-num" id="currentLv">0.00</span> <span class="metric-unit">m</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">目标液位</span>
+          <span class="metric-num" id="targetLv">0.60</span> <span class="metric-unit">m</span>
+        </div>
+        <div class="metric is-error">
+          <span class="metric-label">误差（目标−当前）</span>
+          <span class="metric-num" id="error">0.00</span> <span class="metric-unit">m</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">实际阀位</span>
+          <span class="metric-num" id="valve">0</span> <span class="metric-unit">%</span>
+        </div>
       </div>
+      <div class="status" id="controlBreakdown">
+        <strong>PID 拆解（代入当前值，单位：阀门开度 %）</strong>
+        <div class="formula">
+          <div class="formula-row">
+            <span class="term term-p">P</span>
+            <span class="expr">P = 误差 × Kp = <b id="fpErr">0.000</b> × <b id="fpKp">200.0</b> = <span class="res-p" id="pOutput">0.0</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="term term-i">I</span>
+            <span class="expr">I = Ki × 累计误差 = <b id="fpKi">0.0</b> × <b id="fpIacc">—</b> = <span class="res-i" id="iOutput">0.0</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="term term-d">D</span>
+            <span class="expr">D = −Kd × 水位速度 = −<b id="fpKd">0</b> × <b id="fpSpeed">0.000</b> = <span class="res-d" id="dOutput">0.0</span></span>
+          </div>
+          <div class="formula-row">
+            <span class="term term-sum">=</span>
+            <span class="expr">输出 = P + I + D = <span class="res-sum" id="rawOutput">0.0</span>
+              → 限幅 [0,100] → <span class="res-sum" id="commandOutput">0.0</span> %</span>
+          </div>
+          <div class="formula-row">
+            <span class="term term-sum">→</span>
+            <span class="formula-path" id="controlChain"></span>
+          </div>
+        </div>
+        <span id="saturationStatus">等待计算</span>
+      </div>
+      <div class="balance-line" id="balanceLine">进水 0.000 L/s · 出水 0.000 L/s</div>
+      <details class="more-data">
+        <summary>更多数据（点开查看）</summary>
+        仿真时间 <span class="value" id="simTimeDisplay">0.0</span> s
+        · 存水 <span class="value" id="volumeDisplay">0.0</span> L
+        · 理论稳态静差（平衡解预测） <span class="value" id="theoryError">0.00</span> m
+        · 累计溢流 <span class="value" id="overflowDisplay">0.0</span> L
+      </details>
       <div class="chart-head">
-        <h3>曲线</h3>
+        <h3>水位曲线（m）</h3>
         <div class="chart-tools">
+          <label for="simulationSpeed">仿真倍速</label>
+          <select id="simulationSpeed">
+            <option value="1">1×（真实时间）</option>
+            <option value="10" selected>10×</option>
+            <option value="60">60×</option>
+          </select>
           <button class="btn btn-secondary" id="toggleRunBtn" type="button">暂停</button>
         </div>
       </div>
@@ -180,21 +270,22 @@
 
   <script>
     const tips = [
-      "先调 P 到轻微等幅振荡，再加 I 消除静差，最后加 D 抑制超调。",
-      "Kp 越大，控制动作越强；太大时可能引起持续振荡。",
-      "纯 P 控制通常会留下静差；增加 Ki 可逐步消除静差。",
-      "Ki 不宜一次加太多：积分过强可能造成明显超调和较长恢复时间。",
-      "Kd 根据误差变化趋势提前制动，常用于减小超调；单独使用不能消除静差。",
+      "先观察纯 P 的静差，再增加 I；普通水池通常用 PI 就足够。",
+      "Kp 越大，静差越小：实测 50→0.39 m、200→0.14 m、1000→0.03 m。",
+      "本模型纯 P 拉满 Kp=1000 也不会振荡——临界增益实测约 50 万，上限只有它的 1/500。",
+      "纯 P 控制必然留下静差；Ki 就是记住所需阀位、把静差消掉的“记忆项”。",
+      "Ki 不宜一次加太多：实测 Kp=200 时超调在 Ki≈2 达到峰值（约 109 mm）。",
+      "Kd 要到几千才有可见作用（水位速度只有约 0.002 m/s），小了完全无感。",
+      "实测：本模型加大 Kd 反而让超调变大——D 拖慢接近速度，积分积累更多。原因值得思考。",
       "调参时一次只改一个参数，并观察响应曲线的超调量与稳定时间。",
-      "出现等幅振荡说明 Kp 偏大，可适当回调，避免系统长期不稳定。",
       "积分项会累积历史误差，若阀门已达上限（积分饱和），退出饱和需要额外时间。",
-      "Kd 对测量噪声敏感：液位信号抖动大时，过强的 D 会让阀门频繁抖动。",
-      "先用「一键整定」观察自动结果，再手动微调，理解每个参数的独立作用。",
-      "观察「理论静差」读数：纯 P 时它大于 0，加入 I 后应逐渐趋近于 0。",
+      "Kp 接于 0 属于纯 I 控制，实测会持续振荡；出现振荡先确认 Kp > 0。",
+      "「推荐 PI 参数」只是预设，不是在线自动辨识或自动整定。",
+      "预测稳态静差是平衡解，不是当前误差；加 I 后预测为零仍需要等待系统收敛。",
       "调节目标液位后，记录新稳态的到达时间，对比不同参数下的响应速度。",
-      "PI 组合能消除静差，PID 再加 D 通常能同时压低超调、缩短稳定时间。",
-      "如果曲线持续发散（振幅越来越大），说明 Kp 过大，应立即减小。",
-      "拖动曲线区下方的回放条，可回看任意时刻的液位、阀门与误差历史。"
+      "水池截面积越大，相同净流量引起的水位变化越慢。",
+      "右侧「PID 拆解」公式卡实时显示每个数怎么来的，调参时盯着它看最直观。",
+      "暂停后可回看水位曲线；上方读数仍显示当前状态，不是历史读数。"
     ];
     let tipIndex = 0;
     const tipElement = document.getElementById("loadingTip");
@@ -210,38 +301,46 @@
     window.setInterval(showNextTip, 6000);
 
     let setPoint = 0.6;
-    let kp = 15.0;
+    let kp = 200.0;
     let ki = 0.0;
     let kd = 0.0;
 
     let currentLevel = 0.0;
-    let levelSpeed = 0.0;
     let integral = 0.0;
     let valveOpen = 0.0;
     let actuator = 0.0;
+    // 本步 PID 计算的拆解结果，供界面展示“这个数是怎么来的”
+    let controlOutput = { p: 0, i: 0, d: 0, raw: 0, integrating: false };
 
-    const dt = 1 / 60;
-    const delayFrames = 16;      // 纯滞后 16 帧 ≈ 0.27s
+    // 所有物理计算使用米、秒、立方米；只有界面把流量换算为 L/s。
+    const dt = 0.05;            // 固定物理步长，不随显示帧率或倍速变化
+    const controlDelay = 0.3;   // 控制指令纯滞后，秒
+    const delaySteps = Math.round(controlDelay / dt);
     const maxValve = 100;
-    // 被控对象：阀门开度 → 进水 → 水位，过程主时间常数约 3.8s
-    const inflowGain = 0.18;     // 阀门开度对进水量的增益，与 levelLeak 共同决定过程增益
-    const baseLeak = 0;          // 恒定泄漏量，为 0 时理论静差有统一解析式
-    const levelLeak = 0.006;     // 出水量与水位成正比
-    const plantAccel = 4.5;
-    const plantDamping = 0.18;
-    const speedMemory = 0.903;   // 水体惯性，速度环节时间常数约 0.17s
-    const actuatorLag = 0.12;
-    const derivativeFilter = 0.18;
-    const levelScale = 55.6;     // 与 plantAccel、levelLeak 共同决定过程时间常数
-    const integralLimit = 4.5;   // 积分抗饱和上限
-    const visiblePoints = 360;
-    const maxStoredPoints = 2400;
+    const tankArea = 1.0;       // 水池水平截面积，m²
+    const tankHeight = 1.0;     // 池高，m
+    const maxInflow = 0.002;    // 最大进水，m³/s，即 2 L/s
+    const outletDiameter = 0.020; // 底部圆孔直径，m
+    const outletArea = Math.PI * outletDiameter ** 2 / 4;
+    const dischargeCoefficient = 0.6;
+    const gravity = 9.81;
+    const actuatorTimeConstant = 1.0; // 阀门一阶响应时间常数，s
+    const derivativeTimeConstant = 0.5; // 测量微分低通时间常数，s
+    const historyInterval = 1;  // 每个仿真秒保存一个水位点
+    const historySteps = Math.round(historyInterval / dt);
+    const visiblePoints = 601;  // 显示最近 10 分钟
+    const maxStoredPoints = 7201;
+    let simulationSteps = 0;
+    let overflowVolume = 0;
+    let simulationSpeed = 10;
+    let accumulator = 0;
+    let lastFrameTime = null;
 
     let lastMeasurement = 0.0;
     let filteredDerivative = 0.0;
 
-    let delayQueue = new Array(delayFrames).fill(0);
-    let history = [];
+    let delayQueue = new Array(delaySteps).fill(0);
+    let history = [{ time: 0, level: 0 }];
     let isPaused = false;
     let viewStartIndex = 0;
 
@@ -277,10 +376,11 @@
       document.getElementById("kp").value = kp;
       document.getElementById("kpVal").textContent = kp.toFixed(1);
       document.getElementById("ki").value = ki;
-      document.getElementById("kiVal").textContent = ki.toFixed(1);
+      document.getElementById("kiVal").textContent = ki.toFixed(2);
       document.getElementById("kd").value = kd;
-      document.getElementById("kdVal").textContent = kd.toFixed(1);
+      document.getElementById("kdVal").textContent = kd.toFixed(0);
       updateTargetLine();
+      updateReadout();
       drawChart();
     }
 
@@ -301,44 +401,51 @@
 
     function loadPreset(name) {
       if (name === "pOnly") {
-        kp = 50.0;
+        kp = 200.0;
         ki = 0.0;
         kd = 0.0;
-        document.getElementById("tuneStatus").textContent = "P 模式：Kp 已进入轻微等幅振荡区，便于观察纯比例控制的静差与持续振荡";
+        document.getElementById("tuneStatus").textContent =
+          "P 模式（Kp=200）。预期：稳定在约 0.459 m，静差约 0.141 m——纯 P 必须留误差才能维持进水";
       }
       if (name === "pi") {
-        kp = 20.0;
-        ki = 2.0;
+        kp = 200.0;
+        ki = 0.2;
         kd = 0.0;
-        document.getElementById("tuneStatus").textContent = "PI 模式：积分把静差消到 0，但超调比纯 P 更明显";
+        document.getElementById("tuneStatus").textContent =
+          "PI 模式（Kp=200、Ki=0.2）。预期：静差消失、水位贴住红线，几乎无超调；盯住公式卡里 I 项的累积";
       }
       if (name === "pid") {
-        kp = 20.0;
-        ki = 2.0;
-        kd = 4.0;
-        document.getElementById("tuneStatus").textContent = "PID 模式：与 PI 同样的 Kp、Ki，微分把超调压低并更快稳定";
+        kp = 200.0;
+        ki = 0.2;
+        kd = 20000.0;
+        document.getElementById("tuneStatus").textContent =
+          "PID 模式（与 PI 预设仅差 D 项，Kd=20000）。预期：超调反而多约 20 mm——D 拖慢接近速度、积分积累更多，实测与教科书印象相反，值得思考";
       }
 
-      // 预设代表一个完整实验场景：应用参数并从空槽重新开始，便于复现文档中的预期现象
+      // 预设从空槽重新开始，便于比较同一目标下的不同控制方式。
       syncUI();
       resetSimState();
     }
 
     function autoTune() {
-      loadPreset("pid");
-      document.getElementById("tuneStatus").textContent = "已整定为一组稳定参数：kp=20.0、ki=2.0、kd=4.0";
+      loadPreset("pi");
+      document.getElementById("tuneStatus").textContent = "已加载当前物理模型的推荐 PI：Kp=200、Ki=0.2、Kd=0（预设，非自动整定）";
     }
 
     function resetSimState() {
       currentLevel = 0.0;
-      levelSpeed = 0.0;
       integral = 0.0;
       lastMeasurement = 0.0;
       filteredDerivative = 0.0;
       valveOpen = 0.0;
       actuator = 0.0;
-      delayQueue = new Array(delayFrames).fill(0);
-      history = [];
+      controlOutput = { p: 0, i: 0, d: 0, raw: 0, integrating: false };
+      delayQueue = new Array(delaySteps).fill(0);
+      simulationSteps = 0;
+      overflowVolume = 0;
+      accumulator = 0;
+      lastFrameTime = null;
+      history = [{ time: 0, level: 0 }];
       isPaused = false;
       viewStartIndex = 0;
       poolBoxEl.classList.remove("is-paused");
@@ -349,7 +456,7 @@
 
     function resetSystem() {
       setPoint = 0.6;
-      kp = 15.0;
+      kp = 200.0;
       ki = 0.0;
       kd = 0.0;
       syncUI();
@@ -358,7 +465,7 @@
     }
 
     function updateTargetLine() {
-      targetLineEl.style.bottom = (setPoint * 100) + "%";
+      targetLineEl.style.bottom = (setPoint / tankHeight * 100) + "%";
     }
 
     // 调参不重启系统：参数改动即时生效，系统从当前状态继续响应，便于观察过渡过程
@@ -384,12 +491,23 @@
 
     toggleRunBtn.addEventListener("click", function () {
       isPaused = !isPaused;
+      lastFrameTime = null;
       if (!isPaused) {
         viewStartIndex = getLatestViewStart();
       }
       poolBoxEl.classList.toggle("is-paused", isPaused);
       updateScrubberUI();
       drawChart();
+    });
+
+    document.getElementById("simulationSpeed").addEventListener("change", function () {
+      simulationSpeed = Number(this.value);
+      lastFrameTime = null;
+    });
+
+    // 后台页面停止推进仿真，避免回到页面时突然补算很长时间。
+    document.addEventListener("visibilitychange", function () {
+      lastFrameTime = null;
     });
 
     historyScrubber.addEventListener("input", function () {
@@ -403,7 +521,7 @@
     }
 
     function formatTime(index) {
-      return (Math.max(0, index) * dt).toFixed(1) + "s";
+      return (history[index]?.time || 0).toFixed(1) + "s";
     }
 
     function updateScrubberUI() {
@@ -431,79 +549,136 @@
 
     function updateReadout() {
       const error = setPoint - currentLevel;
-      const waterPercent = currentLevel * 100;
+      const waterPercent = currentLevel / tankHeight * 100;
       waterEl.style.height = waterPercent + "%";
       waterEl.classList.toggle("has-water", currentLevel > 0.002);
       document.getElementById("currentLv").textContent = currentLevel.toFixed(2);
+      document.getElementById("targetLv").textContent = setPoint.toFixed(2);
       document.getElementById("valve").textContent = Math.round(actuator);
       document.getElementById("error").textContent = error.toFixed(2);
-      document.getElementById("delayDisplay").textContent = delayFrames;
+      document.getElementById("simTimeDisplay").textContent = (simulationSteps * dt).toFixed(1);
+      document.getElementById("volumeDisplay").textContent = (currentLevel * tankArea * 1000).toFixed(1);
+      document.getElementById("overflowDisplay").textContent = (overflowVolume * 1000).toFixed(1);
+
+      // PID 拆解：把“误差 → 各项 → 指令 → 实际阀位”这串数字直接显示出来
+      const out = controlOutput;
+      document.getElementById("pOutput").textContent = out.p.toFixed(1);
+      document.getElementById("iOutput").textContent = out.i.toFixed(1);
+      document.getElementById("dOutput").textContent = out.d.toFixed(1);
+      document.getElementById("rawOutput").textContent = out.raw.toFixed(1);
+      document.getElementById("commandOutput").textContent = valveOpen.toFixed(1);
+      // 公式卡：把当前误差、参数、水位速度代入原始式子
+      document.getElementById("fpErr").textContent = error.toFixed(3);
+      document.getElementById("fpKp").textContent = kp.toFixed(1);
+      document.getElementById("fpKi").textContent = ki.toFixed(2);
+      document.getElementById("fpIacc").textContent = ki > 0 ? (integral / ki).toFixed(2) : "—";
+      document.getElementById("fpKd").textContent = kd.toFixed(0);
+      document.getElementById("fpSpeed").textContent = filteredDerivative.toFixed(3);
+      const saturation = out.raw > maxValve ? "上限饱和：原始输出超过 100%，阀门按 100% 打开"
+        : out.raw < 0 ? "下限饱和：原始输出为负，阀门按 0% 关闭（不能反向抽水）" : "未饱和";
+      const integration = ki === 0 ? "Ki=0，积分关闭"
+        : out.integrating ? "积分正在累积" : "抗饱和：输出已在边界，暂停向饱和方向累积";
+      document.getElementById("saturationStatus").textContent = saturation + "；" + integration;
+      document.getElementById("controlChain").textContent =
+        `计算链：限幅指令 ${valveOpen.toFixed(1)}% 经 ${controlDelay.toFixed(2)} s 延迟与阀门动作`
+        + ` → 实际阀位 ${Math.round(actuator)}%`;
 
       // 进/出水动画强度跟随当前阀门开度与水位
-      const poolHeight = 300;
+      const poolHeight = poolBoxEl.clientHeight;
       const valveRatio = actuator / maxValve;
-      const inflow = inflowGain * valveRatio;
-      const outflow = baseLeak + levelLeak * currentLevel;
-      const inletRatio = Math.min(1, inflow / inflowGain);
-      const outletRatio = Math.min(1, outflow / (levelLeak + baseLeak));
+      const inflow = maxInflow * valveRatio;
+      const outflow = outletFlow(currentLevel);
+      // 进出水平衡是理解闭环稳态的关键：进≈出时水位不再变化
+      const netLps = (inflow - outflow) * 1000;
+      const balanceState = Math.abs(netLps) < 0.005 ? "进出平衡，水位稳定"
+        : netLps > 0 ? `净进 ${netLps.toFixed(3)} L/s，水位上升`
+          : `净出 ${(-netLps).toFixed(3)} L/s，水位下降`;
+      document.getElementById("balanceLine").textContent =
+        `进水 ${(inflow * 1000).toFixed(3)} L/s · 出水 ${(outflow * 1000).toFixed(3)} L/s · ${balanceState}`;
+      const inletRatio = valveRatio;
+      const outletRatio = Math.min(1, outflow / outletFlow(tankHeight));
 
       // 进水流长度精确接到当前水面（起点距池顶16px）
-      const surfaceY = poolHeight * (1 - currentLevel);
+      const surfaceY = poolHeight * (1 - currentLevel / tankHeight);
       const inletHeight = Math.max(0, surfaceY - 16);
       inletStreamEl.style.height = inletHeight.toFixed(1) + "px";
       inletStreamEl.style.width = (8 + inletRatio * 10).toFixed(1) + "px";
       inletStreamEl.style.opacity = inletRatio > 0.01 ? String(0.4 + inletRatio * 0.6) : "0";
 
       // 出水流长度接到接水槽（槽顶距池底约70px），粗细随出水量变化
-      const outletHeight = outletRatio * 94;
+      const outletHeight = 46;
       outletStreamEl.style.height = outletHeight.toFixed(1) + "px";
       outletStreamEl.style.width = (6 + outletRatio * 8).toFixed(1) + "px";
       outletStreamEl.style.opacity = outletRatio > 0.01 ? String(0.4 + outletRatio * 0.6) : "0";
       drainPoolEl.classList.toggle("is-receiving", outletRatio > 0.01);
 
-      // 理论稳态误差：积分未饱和时由积分作用消除；饱和时按阀位平衡解出残余静差
-      const valveRange = 100 * levelLeak / inflowGain;
-      const theoryError = Math.max(0, (valveRange * setPoint - integralLimit * ki) / (kp + valveRange));
-      document.getElementById("theoryError").textContent = theoryError.toFixed(3);
+      // 仅为平衡解预测，不承诺不稳定参数能够收敛。
+      document.getElementById("theoryError").textContent = steadyStateError().toFixed(3);
+    }
+
+    function outletFlow(height) {
+      return dischargeCoefficient * outletArea * Math.sqrt(2 * gravity * Math.max(0, height));
+    }
+
+    function steadyStateError() {
+      if (ki > 0) {
+        // 积分能保持所需阀位；若进水能力不足，只能达到全开时的平衡水位。
+        const fullOpenHeight = (maxInflow / (dischargeCoefficient * outletArea)) ** 2 / (2 * gravity);
+        return Math.max(0, setPoint - fullOpenHeight);
+      }
+      // 纯 P：求 Qmax * clamp(Kp*(目标-h),0,100)/100 = Qout(h)。
+      let low = 0;
+      let high = setPoint;
+      for (let i = 0; i < 60; i++) {
+        const height = (low + high) / 2;
+        const command = Math.max(0, Math.min(maxValve, kp * (setPoint - height)));
+        if (maxInflow * command / maxValve > outletFlow(height)) low = height;
+        else high = height;
+      }
+      return setPoint - (low + high) / 2;
     }
 
     function pidControl() {
       const error = setPoint - currentLevel;
       const measurementDerivative = (currentLevel - lastMeasurement) / dt;
-      filteredDerivative += derivativeFilter * (measurementDerivative - filteredDerivative);
+      const derivativeAlpha = 1 - Math.exp(-dt / derivativeTimeConstant);
+      filteredDerivative += derivativeAlpha * (measurementDerivative - filteredDerivative);
 
-      integral += error * dt;
-      integral = Math.max(-integralLimit, Math.min(integralLimit, integral));
+      // integral 直接存积分输出（%）。条件积分：饱和时不继续向饱和方向累积。
+      const candidateIntegral = integral + ki * error * dt;
+      const candidateCommand = kp * error + candidateIntegral - kd * filteredDerivative;
+      let integrating = false;
+      if (ki === 0) integral = 0;
+      else if ((candidateCommand >= 0 && candidateCommand <= maxValve)
+        || (candidateCommand > maxValve && error < 0)
+        || (candidateCommand < 0 && error > 0)) {
+        integral = candidateIntegral;
+        integrating = true;
+      }
 
-      const command = kp * error + ki * integral - kd * filteredDerivative;
+      const command = kp * error + integral - kd * filteredDerivative;
       valveOpen = Math.max(0, Math.min(maxValve, command));
+      controlOutput = { p: kp * error, i: integral, d: -kd * filteredDerivative,
+        raw: command, integrating };
       lastMeasurement = currentLevel;
 
       delayQueue.push(valveOpen);
       const delayedValve = delayQueue.shift();
 
-      actuator += actuatorLag * (delayedValve - actuator);
+      actuator += (1 - Math.exp(-dt / actuatorTimeConstant)) * (delayedValve - actuator);
       const valveRatio = actuator / maxValve;
-      const inflow = inflowGain * valveRatio;
-      const outflow = baseLeak + levelLeak * currentLevel;
+      const inflow = maxInflow * valveRatio;
+      // 一步内排出的水不能超过现有水量加本步进水。
+      const outflow = Math.min(outletFlow(currentLevel), currentLevel * tankArea / dt + inflow);
+      const nextVolume = currentLevel * tankArea + (inflow - outflow) * dt;
+      overflowVolume += Math.max(0, nextVolume - tankArea * tankHeight);
+      currentLevel = Math.max(0, Math.min(tankHeight, nextVolume / tankArea));
+      simulationSteps++;
 
-      const accel = plantAccel * (inflow - outflow) - plantDamping * levelSpeed;
-      levelSpeed = speedMemory * levelSpeed + accel * dt;
-      currentLevel = Math.max(0, Math.min(1, currentLevel + levelSpeed * dt * levelScale));
-
-      if (currentLevel <= 0 && levelSpeed < 0) levelSpeed = 0;
-      if (currentLevel >= 1 && levelSpeed > 0) levelSpeed = 0;
-
-      updateReadout();
-
-      history.push(currentLevel);
-      if (history.length > maxStoredPoints) {
-        history.shift();
-        if (isPaused && viewStartIndex > 0) viewStartIndex -= 1;
+      if (simulationSteps % historySteps === 0) {
+        history.push({ time: simulationSteps * dt, level: currentLevel });
+        if (history.length > maxStoredPoints) history.shift();
       }
-
-      updateScrubberUI();
-      drawChart();
     }
 
     function drawChart() {
@@ -528,7 +703,7 @@
       ctx.strokeStyle = "#ef4444";
       ctx.lineWidth = 2;
       ctx.beginPath();
-      const ty = h - setPoint * h;
+      const ty = h - setPoint / tankHeight * h;
       ctx.moveTo(0, ty);
       ctx.lineTo(w, ty);
       ctx.stroke();
@@ -537,19 +712,32 @@
       ctx.lineWidth = 2;
       ctx.beginPath();
       for (let i = start; i < end; i++) {
-        const val = history[i];
-        if (val == null) continue;
+        const point = history[i];
+        if (point == null) continue;
         const progress = end - start <= 1 ? 0 : (i - start) / (end - start - 1);
         const x = progress * w;
-        const y = h - val * h;
+        const y = h - point.level / tankHeight * h;
         if (i === start) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
     }
 
-    function loop() {
-      if (!isPaused) pidControl();
+    function loop(timestamp) {
+      if (lastFrameTime !== null && !isPaused && !document.hidden) {
+        accumulator += (timestamp - lastFrameTime) / 1000 * simulationSpeed;
+        // 固定步长推进，渲染只做一次。积压保留到后续帧，不把大步长传入物理模型。
+        let steps = 0;
+        while (accumulator >= dt && steps < 2400) {
+          pidControl();
+          accumulator -= dt;
+          steps++;
+        }
+      }
+      lastFrameTime = timestamp;
+      updateReadout();
+      updateScrubberUI();
+      drawChart();
       requestAnimationFrame(loop);
     }
 
@@ -558,7 +746,7 @@
     updateScrubberUI();
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
-    loop();
+    requestAnimationFrame(loop);
   </script>
 </body>
 </html>
