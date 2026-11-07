@@ -127,31 +127,31 @@
       </div>
 
       <div class="param">
-        <label for="kp">Kp (%/m)</label>
+        <label for="kp">Kp 控制比例（内部 %/m）</label>
         <div class="param-control">
-          <button class="btn param-btn" onclick="adjustParam('kp', -0.1)">-</button>
-          <input type="range" id="kp" min="0" max="1000" step="0.1" value="200.0">
-          <button class="btn param-btn" onclick="adjustParam('kp', 0.1)">+</button>
+          <button class="btn param-btn" onclick="adjustParam('kp', -1)">-</button>
+          <input type="range" id="kp" min="0" max="100" step="1" value="20">
+          <button class="btn param-btn" onclick="adjustParam('kp', 1)">+</button>
         </div>
-        <span class="value" id="kpVal">200.0</span>
+        <span class="value" id="kpVal">20</span>
       </div>
 
       <div class="param">
-        <label for="ki">Ki (%/(m·s))</label>
+        <label for="ki">Ki 控制比例（内部 %/(m·s)）</label>
         <div class="param-control">
-          <button class="btn param-btn" onclick="adjustParam('ki', -0.05)">-</button>
-          <input type="range" id="ki" min="0" max="5" step="0.05" value="0.00">
-          <button class="btn param-btn" onclick="adjustParam('ki', 0.05)">+</button>
+          <button class="btn param-btn" onclick="adjustParam('ki', -1)">-</button>
+          <input type="range" id="ki" min="0" max="100" step="1" value="0">
+          <button class="btn param-btn" onclick="adjustParam('ki', 1)">+</button>
         </div>
-        <span class="value" id="kiVal">0.00</span>
+        <span class="value" id="kiVal">0</span>
       </div>
 
       <div class="param">
-        <label for="kd">Kd (%·s/m)</label>
+        <label for="kd">Kd 控制比例（内部 %·s/m）</label>
         <div class="param-control">
-          <button class="btn param-btn" onclick="adjustParam('kd', -100)">-</button>
-          <input type="range" id="kd" min="0" max="20000" step="100" value="0">
-          <button class="btn param-btn" onclick="adjustParam('kd', 100)">+</button>
+          <button class="btn param-btn" onclick="adjustParam('kd', -1)">-</button>
+          <input type="range" id="kd" min="0" max="100" step="1" value="0">
+          <button class="btn param-btn" onclick="adjustParam('kd', 1)">+</button>
         </div>
         <span class="value" id="kdVal">0</span>
       </div>
@@ -215,7 +215,7 @@
         <div class="formula">
           <div class="formula-row">
             <span class="term term-p">P</span>
-            <span class="expr">P = 误差 × Kp = <b id="fpErr">0.000</b> × <b id="fpKp">200.0</b> = <span class="res-p" id="pOutput">0.0</span></span>
+            <span class="expr">P = Kp × 误差 = <b id="fpKp">200.0</b> × <b id="fpErr">0.000</b> = <span class="res-p" id="pOutput">0.0</span></span>
           </div>
           <div class="formula-row">
             <span class="term term-i">I</span>
@@ -304,6 +304,10 @@
     let kp = 200.0;
     let ki = 0.0;
     let kd = 0.0;
+    // 三个滑块统一显示 0–100 的控制比例；仿真仍使用各自的物理参数范围。
+    const kpScale = 10;   // 比例 100 → 内部 Kp 1000
+    const kiScale = 0.05; // 比例 100 → 内部 Ki 5
+    const kdScale = 200;  // 比例 100 → 内部 Kd 20000
 
     let currentLevel = 0.0;
     let integral = 0.0;
@@ -373,12 +377,12 @@
     function syncUI() {
       document.getElementById("setPoint").value = setPoint;
       document.getElementById("setPointVal").textContent = setPoint.toFixed(1);
-      document.getElementById("kp").value = kp;
-      document.getElementById("kpVal").textContent = kp.toFixed(1);
-      document.getElementById("ki").value = ki;
-      document.getElementById("kiVal").textContent = ki.toFixed(2);
-      document.getElementById("kd").value = kd;
-      document.getElementById("kdVal").textContent = kd.toFixed(0);
+      document.getElementById("kp").value = kp / kpScale;
+      document.getElementById("kpVal").textContent = Math.round(kp / kpScale);
+      document.getElementById("ki").value = ki / kiScale;
+      document.getElementById("kiVal").textContent = Math.round(ki / kiScale);
+      document.getElementById("kd").value = kd / kdScale;
+      document.getElementById("kdVal").textContent = Math.round(kd / kdScale);
       updateTargetLine();
       updateReadout();
       drawChart();
@@ -391,9 +395,9 @@
       value = Math.max(parseFloat(input.min), Math.min(parseFloat(input.max), value));
 
       if (name === "setPoint") setPoint = value;
-      if (name === "kp") kp = value;
-      if (name === "ki") ki = value;
-      if (name === "kd") kd = value;
+      if (name === "kp") kp = value * kpScale;
+      if (name === "ki") ki = value * kiScale;
+      if (name === "kd") kd = value * kdScale;
 
       // 微调同样不重启系统，参数即时生效
       syncUI();
@@ -475,17 +479,17 @@
     };
 
     document.getElementById("kp").oninput = function () {
-      kp = parseFloat(this.value);
+      kp = parseFloat(this.value) * kpScale;
       syncUI();
     };
 
     document.getElementById("ki").oninput = function () {
-      ki = parseFloat(this.value);
+      ki = parseFloat(this.value) * kiScale;
       syncUI();
     };
 
     document.getElementById("kd").oninput = function () {
-      kd = parseFloat(this.value);
+      kd = parseFloat(this.value) * kdScale;
       syncUI();
     };
 

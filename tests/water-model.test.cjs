@@ -161,9 +161,9 @@ test('simulation speed offers fast 50x and 100x options', () => {
 test('slider ranges match the calibration targets', () => {
   // 滑块范围只是本教学模型的操作边界，不代表真实设备的整定答案
   assert.match(html, /id="setPoint" min="0" max="1" step="0\.1"/);
-  assert.match(html, /id="kp" min="0" max="1000" step="0\.1"/);
-  assert.match(html, /id="ki" min="0" max="5" step="0\.05"/);
-  assert.match(html, /id="kd" min="0" max="20000" step="100"/);
+  assert.match(html, /id="kp" min="0" max="100" step="1"/);
+  assert.match(html, /id="ki" min="0" max="100" step="1"/);
+  assert.match(html, /id="kd" min="0" max="100" step="1"/);
   assert.match(script, /let kp = 200\.0;\s*\n\s*let ki = 0\.0;/);    // 默认纯 P
   assert.match(script, /kd = 20000\.0;/);                            // PID 预设用可见的 D
 });
