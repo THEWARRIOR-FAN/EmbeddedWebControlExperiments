@@ -30,7 +30,7 @@
     .param-btn { width: 34px; height: 34px; padding: 0; margin-top: 0; flex: 0 0 34px; }
     .preset-btn { width: 100%; }
     .status, .tips { line-height: 1.7; font-size: 14px; }
-    .pool-box { position: relative; width: 100%; height: 300px; border: 3px solid #6b7280; border-bottom: none; margin: 14px 0 54px; background: #fff; overflow: visible; }
+    .pool-box { position: relative; width: 100%; height: 300px; border: 3px solid #6b7280; border-bottom: none; margin: 14px 0 52px; background: #fff; overflow: visible; }
     .water { position: absolute; bottom: 0; width: 100%; background: linear-gradient(180deg, #60a5fa, #2563eb); overflow: hidden; transition: height .08s linear; }
     .water::before { content: ""; position: absolute; left: 0; top: 0; width: 200%; height: 10px; background: repeating-linear-gradient(110deg, rgba(255,255,255,.5) 0 18px, rgba(255,255,255,0) 18px 44px); animation: surfaceFlow 2.8s linear infinite; }
     .water::after { content: ""; position: absolute; left: 0; top: 8px; width: 200%; height: 8px; background: repeating-linear-gradient(70deg, rgba(255,255,255,.18) 0 14px, rgba(255,255,255,0) 14px 38px); animation: surfaceFlow 4.2s linear infinite reverse; }
@@ -62,10 +62,10 @@
     .status, .tips { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #f8fafc; border: 1px solid #e5e7eb; }
     .tips { color: #475569; }
     /* 核心指标：四个关键量并排放大显示 */
-    .key-metrics { display: flex; gap: 8px; margin-top: 6px; }
-    .metric { flex: 1; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 6px; text-align: center; }
-    .metric-label { display: block; font-size: 12px; color: #6b7280; margin-bottom: 3px; }
-    .metric-num { font-size: 24px; font-weight: 700; color: #1f2937; }
+    .key-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 0; }
+    .metric { min-width: 0; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 7px 5px; text-align: center; }
+    .metric-label { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: #6b7280; margin-bottom: 2px; }
+    .metric-num { font-size: 21px; font-weight: 700; color: #1f2937; }
     .metric-unit { font-size: 12px; color: #6b7280; }
     .metric.is-error .metric-num { color: #dc2626; }
     .balance-line { margin-top: 8px; font-size: 14px; color: #374151; }
@@ -74,23 +74,23 @@
     .more-data summary { cursor: pointer; color: #2563eb; font-weight: 600; }
     .more-data[open] summary { margin-bottom: 4px; }
     /* PID 公式卡：每项一行，代入真实数字，颜色与 P/I/D 对应 */
-    #controlBreakdown { border-left: 3px solid #2563eb; }
+    #controlBreakdown { border-left: 3px solid #2563eb; margin-top: 8px; padding-top: 8px; padding-bottom: 8px; }
     #controlBreakdown strong { color: #1f2937; }
-    .formula { display: grid; gap: 5px; margin-top: 6px; }
-    .formula-row { display: flex; align-items: baseline; gap: 8px; }
+    .formula { display: grid; gap: 3px; margin-top: 4px; }
+    .formula-row { display: flex; align-items: baseline; gap: 7px; }
     .term { flex: 0 0 20px; height: 20px; line-height: 20px; text-align: center;
       border-radius: 5px; color: #fff; font-weight: 700; font-size: 12px; }
     .term-p { background: #2563eb; }
     .term-i { background: #d97706; }
     .term-d { background: #059669; }
     .term-sum { background: #1f2937; }
-    .expr { font-family: Consolas, "Courier New", monospace; font-size: 14px; color: #374151; }
+    .expr { font-family: Consolas, "Courier New", monospace; font-size: 13px; color: #374151; }
     .expr b { color: #c2410c; }
     .expr .res-p { color: #2563eb; font-size: 15px; }
     .expr .res-i { color: #d97706; font-size: 15px; }
     .expr .res-d { color: #059669; font-size: 15px; }
     .expr .res-sum { color: #1f2937; font-size: 15px; }
-    .formula-path { font-size: 13px; color: #475569; font-family: inherit; }
+    .formula-path { font-size: 12px; color: #475569; font-family: inherit; }
     .formula-path b { color: #2563eb; }
     .chart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
     .chart-head h3 { margin: 0; }
@@ -120,7 +120,7 @@
         <label for="setPoint">目标液位 (m)</label>
         <div class="param-control">
           <button class="btn param-btn" onclick="adjustParam('setPoint', -0.1)">-</button>
-          <input type="range" id="setPoint" min="0.2" max="0.8" step="0.1" value="0.6">
+          <input type="range" id="setPoint" min="0" max="1" step="0.1" value="0.6">
           <button class="btn param-btn" onclick="adjustParam('setPoint', 0.1)">+</button>
         </div>
         <span class="value" id="setPointVal">0.6</span>
@@ -251,8 +251,8 @@
           <label for="simulationSpeed">仿真倍速</label>
           <select id="simulationSpeed">
             <option value="1">1×（真实时间）</option>
-            <option value="10" selected>10×</option>
-            <option value="60">60×</option>
+            <option value="50" selected>50×</option>
+            <option value="100">100×</option>
           </select>
           <button class="btn btn-secondary" id="toggleRunBtn" type="button">暂停</button>
         </div>
@@ -332,7 +332,7 @@
     const maxStoredPoints = 7201;
     let simulationSteps = 0;
     let overflowVolume = 0;
-    let simulationSpeed = 10;
+    let simulationSpeed = 50;
     let accumulator = 0;
     let lastFrameTime = null;
 

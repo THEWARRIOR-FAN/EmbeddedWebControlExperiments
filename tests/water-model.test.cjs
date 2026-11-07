@@ -96,8 +96,9 @@ test('frame rate independent fixed-step timing, pause, speed and reset', () => {
   }
   const slow = simulate(30);
   const fast = simulate(144);
+  // 50× 下按固定步长推进，帧率差异最多造成一个 dt 的累计舍入误差。
   assert.ok(Math.abs(slow('simulationSteps * dt') - 100) <= 0.051);
-  assert.ok(Math.abs(slow('currentLevel') - fast('currentLevel')) < 0.0001);
+  assert.ok(Math.abs(slow('currentLevel') - fast('currentLevel')) < 0.001);
   slow('isPaused = true; loop(11000); loop(12000);');
   const pausedSteps = slow('simulationSteps');
   slow('loop(13000);');
@@ -152,8 +153,14 @@ test('preset status explains expected phenomenon for learners', () => {
   assert.ok(run('document.getElementById("tuneStatus").textContent').includes('D 项'));
 });
 
+test('simulation speed offers fast 50x and 100x options', () => {
+  assert.match(html, /<option value="50" selected>50×<\/option>/);
+  assert.match(html, /<option value="100">100×<\/option>/);
+});
+
 test('slider ranges match the calibration targets', () => {
   // 滑块范围只是本教学模型的操作边界，不代表真实设备的整定答案
+  assert.match(html, /id="setPoint" min="0" max="1" step="0\.1"/);
   assert.match(html, /id="kp" min="0" max="1000" step="0\.1"/);
   assert.match(html, /id="ki" min="0" max="5" step="0\.05"/);
   assert.match(html, /id="kd" min="0" max="20000" step="100"/);
